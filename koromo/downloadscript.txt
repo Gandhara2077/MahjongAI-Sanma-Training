@@ -1,0 +1,6 @@
+python download_tenhou.py --variant yonma --start-date 20260701 --end-date 20260704
+python download_tenhou.py --variant yonma --start-date 20260601 --end-date 20260606
+python download_tenhou.py --variant yonma --start-date 20260607 --end-date 20260610
+python download_tenhou.py --variant sanma --start-date 20260701 --end-date 20260703
+python download_tenhou.py --variant sanma --start-date 20260601 --end-date 20260625
+python download_tenhou.py --variant sanma --start-date 20260626 --end-date 20260630

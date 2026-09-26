@@ -1,0 +1,30 @@
+# Gate 1 for the 128x8 from-scratch capacity run: fresh-seed panel vs the
+# original baseline. Run from Mortal/ with MORTAL_CFG set to this file.
+# 600 x 5 = 3,000 games. Key 20260902 is shared with the paired-gate config.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260902
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_128x8_final_20260902'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-128x8-46k'
+state_file = 'training/sanma_128x8_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

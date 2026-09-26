@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Static checks (Windows / Python 3.12)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Variant and base-model contract
+        run: python checks/abi/training_profile_check.py --generic
+
+      - name: One-click pipeline dry run
+        run: python checks/abi/one_click_dry_run_check.py
+
+      - name: Byte-compile project-owned Python
+        run: python -m compileall -q checks scripts experiments koromo tools
+
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: python -m pip install --upgrade pip ruff
+
+      # Error-level rules only. `Mortal/` is a vendored, modified upstream
+      # tree and is intentionally excluded from house style checks.
+      - name: Ruff (E9, F63, F7, F821, F823)
+        run: ruff check --select E9,F63,F7,F821,F823 --exclude Mortal,target,build,.venv-rocm .

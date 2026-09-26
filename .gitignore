@@ -1,0 +1,87 @@
+# ---- 模型权重与大文件 ----
+*.pth
+*.pt
+*.onnx
+
+# ---- 原生扩展与构建产物 ----
+native/
+mortal/libriichi.pyd
+target/
+target-py*/
+*.pyd
+*.pyd.backup-*
+*.dll
+*.so
+*.exp
+*.lib
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.venv/
+.venv-*/
+venv/
+*.egg-info/
+dist/
+build/
+
+# ---- 数据(可再生/不迁移) ----
+mjlog/
+mjson/
+source/
+manifests/
+*.mjlog
+*.mjson
+*.part
+
+# ---- 训练产物 ----
+training/
+tensorboard*/
+*.tfevents.*
+
+# ---- 缓存与临时 ----
+.cache/
+.cargo/
+.ruff_cache/
+.pytest_cache/
+tools/rustup-mirror.cmd
+artifacts/*.part
+data/raw/
+data/mjson/
+!data/
+!data/manifests/
+!data/manifests/**
+Mortal/native/
+log-viewer/node_modules/
+Thumbs.db
+*.bak
+*.swp
+*.swo
+*~
+
+# ---- 开发工具（不影响项目使用）----
+.claude/
+.trellis/
+.serena/
+.vscode/
+.idea/
+*.code-workspace
+
+# ---- 项目开发文档（仅开发期使用）----
+AGENTS.md
+PROJECT_STATUS.md
+QUICKSTART.md
+
+# ---- 操作系统 ----
+.DS_Store
+desktop.ini
+
+# ---- 运行日志 ----
+*.log
+/*_result.json
+/online_phase*_logs/
+*.safetensors
+
+# ---- 本地分析工作区（不入库）----
+.zcode/
+.superpowers/

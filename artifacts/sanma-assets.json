@@ -1,0 +1,25 @@
+﻿{
+    "variant":  "sanma",
+    "reference":  {
+                      "python":  "3.12",
+                      "filename":  "libriichi3p-3.12-x86_64-pc-windows-msvc.pyd"
+                  },
+    "abi":  {
+                "version":  4,
+                "obs_shape":  [
+                                  775,
+                                  34
+                              ],
+                "action_space":  44
+            },
+    "model":  {
+                  "path":  "baselines/sanma_baseline_mortal3p_original.pth",
+                  "bytes":  5024765,
+                  "sha256":  "7b77cab4cd9782f48b0a8538b264840e5f5d20f9a8469914cdb52b7d0912f384"
+              },
+    "reference_extension":  {
+                                "path":  ".cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd",
+                                "bytes":  1353728,
+                                "sha256":  "0a0b295e6954c7fe85765b69519c8bcfd31af19c224281b203f9c20672962523"
+                            }
+}

@@ -1,0 +1,29 @@
+# Direct comparison: 32k training best vs the archived 46.5k champion.
+# Run from Mortal/ with MORTAL_CFG set to this file.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260905
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_best32k_vs_champion46k_20260905'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-128x8-best-32k'
+state_file = 'training/sanma_128x8_best_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'sanma-128x8-champion-46k'
+state_file = '../baselines/sanma_champion_128x8_46500_20260831.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

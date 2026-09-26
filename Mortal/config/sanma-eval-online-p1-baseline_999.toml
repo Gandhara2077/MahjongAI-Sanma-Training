@@ -1,0 +1,27 @@
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260925
+games_per_iter = 333
+iters = 3
+log_dir = 'training/sanma_1v2_online_p1_baseline_999'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-online-128x8'
+state_file = 'training/online_128x8_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

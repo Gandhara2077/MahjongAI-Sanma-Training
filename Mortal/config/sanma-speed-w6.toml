@@ -1,0 +1,180 @@
+# Reproducible sanma offline training configuration.
+# Start from Mortal/ with MORTAL_CFG=config/sanma-training.toml.
+
+[control]
+version = 4
+online = false
+state_file = 'training/sanma_speed_w6_state.pth'
+best_state_file = 'training/sanma_speed_w6_best_state.pth'
+deployment_file = 'training/sanma_speed_w6_model.pth'
+best_deployment_file = 'training/sanma_speed_w6_best_model.pth'
+init_from = '../.cache/models/mortal3p.pth'
+tensorboard_dir = 'training/sanma_speed_w6_tensorboard'
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+enable_amp = true
+enable_compile = false
+batch_size = 1024
+opt_step_every = 1
+save_every = 100
+test_every = 100000
+submit_every = 100
+max_steps = 17900
+snapshot_every = 500
+snapshot_dir = 'training/sanma_speed_w6_snapshots'
+random_seed = 20260829
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[test_play]
+games = 300
+log_dir = 'training/sanma_test_play'
+pts = [90, 0, -90]
+
+[train_play.default]
+games = 9999
+log_dir = 'training/sanma_train_play'
+boltzmann_epsilon = 0.005
+boltzmann_temp = 0.05
+top_p = 1.0
+repeats = 1
+
+[baseline.train]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../.cache/models/mortal3p.pth'
+
+[baseline.test]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../.cache/models/mortal3p.pth'
+
+[dataset]
+native_version = 5
+globs = [
+    '../koromo/mjson/2026/0[1-6]/**/*.mjson',
+    '../koromo/mjson/2026/07/0[1-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/1[0-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/2[0-4]/**/*.mjson',
+]
+file_index = 'training/sanma_clean_file_index.pth'
+file_batch_size = 8
+reserve_ratio = 0.0
+num_workers = 6
+player_names_files = []
+num_epochs = 2
+enable_augmentation = true
+augmented_first = false
+
+[env]
+gamma = 1.0
+pts = [6.0, 3.0, 0.0]
+
+[resnet]
+conv_channels = 32
+num_blocks = 2
+
+[cql]
+min_q_weight = 5.0
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [0.9, 0.999]
+weight_decay = 0.1
+max_grad_norm = 0.0
+
+[optim.scheduler]
+peak = 1e-6
+final = 3e-7
+warm_up_steps = 100
+max_steps = 40000
+
+[online_training]
+phase_start_step = 0
+expert_ratio = 0.0
+brain_freeze_updates = 0
+
+[online]
+history_window = 50
+enable_compile = false
+
+[online.remote]
+host = '127.0.0.1'
+port = 5000
+
+[online.server]
+buffer_dir = 'training/sanma_online_buffer'
+drain_dir = 'training/sanma_online_drain'
+sample_reuse_rate = 0
+sample_reuse_threshold = 0
+capacity = 1600
+force_sequential = false
+
+[1v2]
+seed_key = 20260829
+games_per_iter = 600
+iters = 1
+log_dir = 'training/sanma_1v2'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-trained'
+state_file = 'training/sanma_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../.cache/models/mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[grp]
+state_file = 'training/sanma_grp.pth'
+
+[grp.network]
+hidden_size = 64
+num_layers = 2
+
+[grp.control]
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+tensorboard_dir = 'training/sanma_grp_tensorboard'
+best_state_file = 'training/sanma_best_grp.pth'
+metrics_file = 'training/sanma_grp_metrics.json'
+early_stopping_patience = 5
+early_stopping_min_delta = 1e-4
+selection_metric = 'expected_pt_mse'
+batch_size = 128
+save_every = 100
+max_steps = 10000
+
+[grp.dataset]
+train_globs = [
+    '../koromo/mjson/2026/0[1-6]/**/*.mjson',
+    '../koromo/mjson/2026/07/0[1-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/1[0-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/2[0-4]/**/*.mjson',
+]
+val_globs = [
+    '../koromo/mjson/2026/07/2[5-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/3[0-1]/**/*.mjson',
+    '../koromo/mjson/2026/08/0[1-7]/**/*.mjson',
+]
+file_index = 'training/sanma_clean_grp_file_index.pth'
+file_batch_size = 32
+
+[grp.optim]
+lr = 1e-5

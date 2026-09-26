@@ -1,0 +1,28 @@
+# 256x16 one-epoch candidate versus the archived 128x8 champion (fresh seeds).
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260920
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_256x16_vs_champion_20260920'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-256x16-46k'
+state_file = 'training/sanma_256x16_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'sanma-128x8-champion-46k'
+state_file = '../baselines/sanma_champion_128x8_46500_20260831.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

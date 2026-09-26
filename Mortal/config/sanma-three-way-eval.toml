@@ -1,0 +1,38 @@
+# Three-candidate sanma mixed-table evaluation.
+# Run from Mortal/ after activating the sanma native extension:
+# MORTAL_CFG=config/sanma-three-way-eval.toml python mortal/three_way.py
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[three_way]
+seed_key = 20260831
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_three_way_eval'
+pts = [90, 0, -90]
+
+[[three_way.candidates]]
+name = 'sanma-step32000'
+device = 'cuda:0'
+state_file = 'training/sanma_snapshots_workers6/mortal_step32000.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'sanma-step36000'
+device = 'cuda:0'
+state_file = 'training/sanma_snapshots_workers6/mortal_step36000.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'sanma-step40000'
+device = 'cuda:0'
+state_file = 'training/sanma_snapshots_workers6/mortal_step40000.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

@@ -1,0 +1,9 @@
+# Binary artifacts: never diff, never merge, never convert as text.
+*.pth   binary
+*.pyd   binary
+*.gz    binary
+*.bin   binary
+*.png   binary
+*.gif   binary
+*.mjlog binary
+*.mjson binary

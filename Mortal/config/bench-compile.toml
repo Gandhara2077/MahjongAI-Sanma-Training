@@ -1,0 +1,103 @@
+# Short-lived throughput benchmark: 256x16 @ batch 2048, compile off.
+# Throwaway outputs; never used as a training artifact.
+
+[control]
+version = 4
+online = false
+state_file = 'training/bench_compile_state.pth'
+best_state_file = 'training/bench_compile_best_state.pth'
+deployment_file = ''
+best_deployment_file = ''
+tensorboard_dir = 'training/bench_compile_tb'
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+enable_amp = true
+enable_compile = true
+batch_size = 1024
+opt_step_every = 1
+save_every = 500
+test_every = 999500
+submit_every = 500
+max_steps = 300
+snapshot_every = 0
+snapshot_dir = 'training/bench_compile_snaps'
+random_seed = 20260906
+val_loss_every = 0
+val_max_batches = 25
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[dataset]
+observation_encoder = 'native_v4'
+globs = [
+    '../koromo/mjson/2026/0[1-6]/**/*.mjson',
+    '../koromo/mjson/2026/07/0[1-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/1[0-9]/**/*.mjson',
+    '../koromo/mjson/2026/07/2[0-4]/**/*.mjson',
+    '../koromo/mjson/2026/08/0[89]/**/*.mjson',
+    '../koromo/mjson/2026/08/1[0-9]/**/*.mjson',
+    '../koromo/mjson/2026/08/2[0-9]/**/*.mjson',
+]
+file_index = 'training/sanma_192x12_file_index.pth'
+file_batch_size = 8
+reserve_ratio = 0.0
+num_workers = 8
+player_names_files = []
+num_epochs = 1
+enable_augmentation = true
+augmented_first = false
+
+
+[test_play]
+games = 300
+log_dir = 'training/bench_test_play'
+pts = [90, 0, -90]
+
+
+[baseline.train]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+
+[baseline.test]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+
+[env]
+gamma = 1.0
+pts = [6.0, 3.0, 0.0]
+
+[resnet]
+conv_channels = 256
+num_blocks = 16
+
+[cql]
+min_q_weight = 5.0
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [0.9, 0.999]
+weight_decay = 0.1
+max_grad_norm = 1.0
+
+[optim.scheduler]
+peak = 1e-4
+final = 1e-5
+warm_up_steps = 100
+max_steps = 300
+
+[grp]
+state_file = '../baselines/sanma_grp_10k_last_frozen.pth'
+
+[grp.network]
+hidden_size = 64
+num_layers = 2

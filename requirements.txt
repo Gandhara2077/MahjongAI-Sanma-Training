@@ -1,0 +1,6 @@
+# Runtime dependencies other than PyTorch.
+# Install torch separately from the AMD ROCm wheel instructions in docs/USAGE.md.
+numpy
+tqdm
+toml
+tensorboard

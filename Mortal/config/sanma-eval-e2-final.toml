@@ -1,0 +1,32 @@
+# Gate 1 for the epoch-2 extension (sanma_128x8e2, 46,500 -> 93,000):
+# fresh-seed panel vs the original baseline. 600 x 5 = 3,000 games.
+# Key 20260904 has never been used by any selection run; it is shared with
+# the paired-gate config so the two runs can be seed-paired afterwards.
+# Run from Mortal/ via scripts/run_config.ps1 -Script mortal/one_vs_two.py.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260904
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_e2_final_20260904'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-128x8e2-93k'
+state_file = 'training/sanma_128x8e2_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

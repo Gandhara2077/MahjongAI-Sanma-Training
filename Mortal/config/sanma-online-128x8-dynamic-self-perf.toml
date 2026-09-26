@@ -1,0 +1,144 @@
+[control]
+count_optimizer_updates = true
+version = 4
+online = true
+init_from = "../baselines/sanma_champion_128x8_46500_20260831.pth"
+state_file = "training/online_dynamic_self_20260908/state.pth"
+best_state_file = "training/online_dynamic_self_20260908/best_state.pth"
+deployment_file = "training/online_dynamic_self_20260908/deployment.pth"
+best_deployment_file = "training/online_dynamic_self_20260908/best_deployment.pth"
+tensorboard_dir = "training/online_dynamic_self_20260908/tb"
+device = "cuda:0"
+enable_cudnn_benchmark = true
+enable_amp = true
+enable_compile = false
+batch_size = 1024
+opt_step_every = 1
+save_every = 500
+test_every = 4000
+submit_every = 250
+max_steps = 10000
+snapshot_every = 2500
+snapshot_dir = "training/online_dynamic_self_20260908/snapshots"
+random_seed = 20260907
+val_loss_every = 0
+
+[compat]
+libriichi3p = "../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd"
+max_workers = 16
+
+[test_play]
+games = 300
+log_dir = "training/online_dynamic_self_20260908/test_play"
+pts = [ 90, 0, -90,]
+
+[online_training]
+phase_start_step = 0
+expert_ratio = 0.5
+brain_freeze_updates = 0
+opponent_selection = "weighted"
+reuse_expert_iterator = true
+[[online_training.opponents]]
+name = "baseline-original"
+weight = 0.2
+device = "cuda:0"
+enable_compile = false
+state_file = "../baselines/sanma_baseline_mortal3p_original.pth"
+
+[[online_training.opponents]]
+name = "anchor-128x8-champion"
+weight = 0.3
+device = "cuda:0"
+enable_compile = false
+state_file = "../baselines/sanma_champion_128x8_46500_20260831.pth"
+
+[[online_training.opponents]]
+name = "deployed-self"
+weight = 0.5
+device = "cuda:0"
+enable_compile = false
+state_file = "../baselines/sanma_champion_128x8_46500_20260831.pth"
+source = "current"
+
+[online]
+history_window = 50
+enable_compile = false
+drain_poll_seconds = 0.2
+
+[dataset]
+observation_encoder = "native_v4"
+globs = [ "../koromo/mjson/2026/0[1-6]/**/*.mjson", "../koromo/mjson/2026/07/0[1-9]/**/*.mjson", "../koromo/mjson/2026/07/1[0-9]/**/*.mjson", "../koromo/mjson/2026/07/2[0-4]/**/*.mjson", "../koromo/mjson/2026/08/0[89]/**/*.mjson", "../koromo/mjson/2026/08/1[0-9]/**/*.mjson", "../koromo/mjson/2026/08/2[0-9]/**/*.mjson",]
+file_index = "training/sanma_192x12_file_index.pth"
+file_batch_size = 8
+reserve_ratio = 0.0
+num_workers = 2
+player_names_files = []
+num_epochs = 1
+enable_augmentation = true
+augmented_first = false
+
+[env]
+gamma = 1.0
+pts = [ 6.0, 3.0, 0.0,]
+
+[resnet]
+conv_channels = 128
+num_blocks = 8
+
+[cql]
+min_q_weight = 5.0
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [ 0.9, 0.999,]
+weight_decay = 0.1
+max_grad_norm = 1.0
+
+[grp]
+state_file = "../baselines/sanma_grp_10k_last_frozen.pth"
+
+[online.remote]
+host = "127.0.0.1"
+port = 5021
+
+[online.server]
+buffer_dir = "training/online_dynamic_self_20260908/buffer"
+drain_dir = "training/online_dynamic_self_20260908/drain"
+sample_reuse_rate = 0
+sample_reuse_threshold = 0
+capacity = 1600
+force_sequential = false
+
+[optim.scheduler]
+peak = 3e-5
+final = 1e-5
+warm_up_steps = 1000
+max_steps = 10000
+
+[grp.network]
+hidden_size = 64
+num_layers = 2
+
+[train_play.default]
+games = 96
+log_dir = "training/online_dynamic_self_20260908/train_play"
+boltzmann_epsilon = 0.005
+boltzmann_temp = 0.05
+top_p = 1.0
+repeats = 1
+
+[baseline.train]
+device = "cuda:0"
+enable_compile = false
+state_file = "../baselines/sanma_baseline_mortal3p_original.pth"
+
+[baseline.test]
+device = "cuda:0"
+enable_compile = false
+state_file = "../baselines/sanma_baseline_mortal3p_original.pth"

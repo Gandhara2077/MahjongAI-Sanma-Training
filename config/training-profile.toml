@@ -1,0 +1,35 @@
+# User-facing selection for the one-click training scripts.
+# Change only active.variant to switch the complete workflow.
+
+[active]
+variant = 'sanma'
+
+[variants.sanma]
+players = 3
+training_config = 'Mortal/config/sanma-training.toml'
+automation_config = 'Mortal/automation/sanma.toml'
+
+[variants.sanma.data]
+download_root = 'koromo'
+raw_root = 'koromo/mjlog'
+mjson_root = 'koromo/mjson'
+manifest_root = 'data/manifests'
+start_date = '20260101'
+end_date = '20260807'
+delay = 0.0
+download_workers = 12
+
+[variants.yonma]
+players = 4
+training_config = 'Mortal/config/yonma.toml'
+automation_config = 'Mortal/automation/yonma.toml'
+
+[variants.yonma.data]
+download_root = 'koromo4p'
+raw_root = 'koromo4p/mjlog'
+mjson_root = 'koromo4p/mjson'
+manifest_root = 'data/manifests'
+start_date = '20260101'
+end_date = '20260807'
+delay = 0.5
+download_workers = 4

@@ -1,0 +1,26 @@
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260830
+games_per_iter = 1998
+iters = 1
+log_dir = 'training/sanma_multiseed_confirm_step36000'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-step36000'
+state_file = 'training/sanma_snapshots_workers6/mortal_step36000.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../.cache/models/mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

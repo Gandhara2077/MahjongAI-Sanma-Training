@@ -1,0 +1,113 @@
+# Mortal automation pipeline configuration — variant: sanma (3-player, 三人麻将)
+#
+# Use with: ./run_auto_train.ps1 -Variant sanma [--dry-run] [--stages ...] [--force]
+# (run_auto_train.ps1 activates native/sanma/libriichi-py*.pyd as
+# mortal/libriichi.pyd first; the pipeline dispatches on libriichi NUM_PLAYERS.)
+#
+# Schema is the union of both variants; sanma-only sections are marked below.
+# All relative paths resolve against this file's directory (Mortal/automation/).
+#
+# Sanma training/evaluation additionally needs the historical libriichi3p
+# reference binary (MahjongCopilot ABI); see mortal/libriichi3p_compat.py and
+# the root README (env MORTAL_LIBRIICHI3P / MORTAL_MAHJONGCOPILOT_REPO).
+
+[paths]
+# Tenhou sanma mjson corpus: NOT migrated into this repository.
+# Download with: koromo/download_tenhou.py --variant sanma --start-date YYYYMMDD --end-date YYYYMMDD
+# The one-click profile keeps the data directory in sync with this path.
+logs_root = '../../koromo/mjson'
+mortal_root = '..'
+output_root = '../training/automation'
+base_config = '../config/sanma-training.toml'
+# Seed/reference paths are configured here; the scripts never embed model names.
+# The training seed is a full state; the reference model is a deployment state.
+seed_model = '../training/sanma_train_state.pth'
+reference_model = '../../baselines/sanma_baseline_mortal3p_original.pth'
+grp_seed_model = '../training/sanma_grp.pth'
+
+[pipeline]
+minimum_logs = 100
+split_seed = 'mortal-3p-automation-v1'
+estimated_samples_per_log = 380
+
+[grp]
+enabled = true
+validation_ratio = 0.1
+gate_ratio = 0.05
+min_new_logs = 300
+min_new_ratio = 0.15
+updates_per_new_log = 0.25
+min_updates = 250
+max_updates = 1500
+save_every = 100
+val_steps = 4
+file_batch_size = 64
+lr = 1e-5
+timeout_hours = 8
+early_stopping_patience = 5
+early_stopping_min_delta = 1e-4
+
+# sanma-only: GRP promotion gate = held-out quality gate with paired bootstrap
+# (the yonma config uses [grp.validation] + [grp.downstream] instead).
+[grp.quality_gate]
+enabled = true
+primary_metric = 'expected_pt_mse'
+require_significant = true
+confidence = 0.95
+bootstrap_samples = 2000
+min_gate_logs = 100
+min_relative_improvement = 0.001
+max_nll_regression = 0.0
+max_brier_regression = 0.0
+
+[offline]
+enabled = true
+updates = 12000
+save_every = 100
+snapshot_every = 1000
+# Before online self-play, screen the newest and historical offline snapshots
+# against the configured training parent using sanma-sized batches.
+selection_max_candidates = 8
+selection_games = 600
+peak_lr = 1e-6
+final_lr = 3e-7
+warm_up_steps = 500
+file_batch_size = 8
+num_workers = 2
+num_epochs = 2
+deterministic = false
+timeout_hours = 16
+
+[online]
+enabled = true
+updates = 5000
+save_every = 100
+snapshot_every = 500
+brain_freeze_updates = 500
+expert_ratio = 0.3
+peak_lr = 3e-7
+host = '127.0.0.1'
+port = 5021
+games_per_session = 189
+clients = 1
+repeats = 1
+file_batch_size = 4
+num_workers = 0
+timeout_hours = 16
+
+# sanma-only: weighted opponent pool (fixed anchor / current deployed /
+# Top-3 league) for online self-play.
+[online.opponents]
+anchor_weight = 0.05
+deployed_weight = 0.35
+league_weight = 0.6
+
+[evaluation]
+enabled = true
+screen_games = 600
+max_challengers = 3
+direct_initial_games = 600
+validation_games = 1998
+require_significant = true
+require_positive_pt = true
+timeout_hours = 16

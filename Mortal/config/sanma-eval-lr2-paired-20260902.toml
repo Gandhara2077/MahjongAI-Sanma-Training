@@ -1,0 +1,30 @@
+# Gate 2 for the 128x8 capacity run: the LR2 champion on the SAME seed key
+# (20260902) as sanma-eval-128x8-final.toml, enabling a paired comparison via
+# checks/stats/arena_log_paired.py. Run from Mortal/ with MORTAL_CFG set to this file.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260902
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_lr2_paired_20260902'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-lr2-40k-champion'
+state_file = '../baselines/sanma_champion_lr2_40k_20260830.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

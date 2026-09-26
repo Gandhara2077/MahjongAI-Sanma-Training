@@ -1,0 +1,18 @@
+{
+  "variant": "sanma",
+  "players": 3,
+  "start_date": "20260101",
+  "end_date": "20260807",
+  "raw": {
+    "root": "koromo/mjlog",
+    "files": 66514,
+    "bytes": 822350813,
+    "sha256": "d579ae4371f65da05ccc94720a90f1f884a1bac6ae41e22968ff93171402c5c1"
+  },
+  "mjson": {
+    "root": "koromo/mjson",
+    "files": 66514,
+    "bytes": 178602297,
+    "sha256": "94540da530859a0b829911a0f14f990f9dd6a3b70d6ec58a51acaf574e1ecf31"
+  }
+}

@@ -1,0 +1,37 @@
+# Second-seed three-way comparison: 192x12 best, 192x12 final 93k,
+# and original baseline. The model order is kept identical to seed 20260916.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[three_way]
+seed_key = 20260917
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_three_way_192x12_best_final_baseline_20260917'
+pts = [90, 0, -90]
+
+[[three_way.candidates]]
+name = 'sanma-192x12-best-92k'
+device = 'cuda:0'
+state_file = 'training/sanma_192x12_best_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'sanma-192x12-final-93k'
+device = 'cuda:0'
+state_file = 'training/sanma_192x12_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'mortal-baseline-original'
+device = 'cuda:0'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

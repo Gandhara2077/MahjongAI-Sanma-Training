@@ -1,0 +1,36 @@
+# Three-way: 256x16 final vs 192x12 best (archived) vs 128x8 champion.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[three_way]
+seed_key = 20260921
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_three_way_256x16_192x12best_128x8_20260921'
+pts = [90, 0, -90]
+
+[[three_way.candidates]]
+name = 'sanma-256x16-46k'
+device = 'cuda:0'
+state_file = 'training/sanma_256x16_mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'sanma-192x12-best-92k'
+device = 'cuda:0'
+state_file = '../baselines/sanma_champion_192x12_best_92000.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[[three_way.candidates]]
+name = 'sanma-128x8-champion-46k'
+device = 'cuda:0'
+state_file = '../baselines/sanma_champion_128x8_46500_20260831.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

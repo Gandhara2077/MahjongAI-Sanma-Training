@@ -1,0 +1,185 @@
+# Mortal training configuration — variant: sanma (3-player, 三人麻将)
+#
+# Use with: MORTAL_CFG=config/sanma.toml python mortal/train.py   (from the Mortal/ root)
+#
+# This variant targets the MahjongCopilot deployment ABI: control.version = 4
+# means the 775-channel historical libriichi3p observation layout, while
+# dataset.native_version = 5 reads metadata from the native sanma extension.
+# The [compat] section enables the libriichi3p reference-replay paths; the
+# reference binary is resolved from a MahjongCopilot clone (see
+# mortal/libriichi3p_compat.py, env MORTAL_MAHJONGCOPILOT_REPO).
+# All paths are relative to the Mortal/ repository root.
+# The base model and reference extension are configured in this file.
+
+[control]
+version = 4
+online = false
+
+state_file = 'training/train_state.pth'
+best_state_file = 'training/best_train_state.pth'
+deployment_file = 'training/mortal3p.pth'
+best_deployment_file = 'training/best_mortal3p.pth'
+init_from = '../.cache/models/mortal3p.pth' # configured bootstrap Brain/DQN checkpoint
+tensorboard_dir = 'training/tensorboard'
+
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+enable_amp = true
+enable_compile = false
+
+batch_size = 512
+opt_step_every = 1
+
+save_every = 250
+test_every = 2000
+submit_every = 250
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 1
+
+[train_play.default]
+games = 9999
+log_dir = 'training/train_play'
+boltzmann_epsilon = 0.005
+boltzmann_temp = 0.05
+top_p = 1.0
+repeats = 1
+
+[test_play]
+games = 300
+log_dir = 'training/test_play'
+pts = [90, 0, -90] # display only, never used in training
+
+[dataset]
+# Native Rust v4 observation encoding (775x34, bit-exact vs the frozen
+# reference; gate evidence: .cache/native-v4/resume-rerun-full-gate.json).
+observation_encoder = 'native_v4'
+# Rollback: comment out observation_encoder and restore the alias below to
+# route observations through the historical libriichi3p compat replay.
+# native_version = 5
+globs = ['../koromo/mjson/**/*.mjson']
+file_index = 'training/file_index.pth'
+file_batch_size = 8
+reserve_ratio = 0.0
+num_workers = 0
+player_names_files = []
+num_epochs = 1
+enable_augmentation = true
+augmented_first = false
+
+[env]
+gamma = 1.0
+pts = [6.0, 3.0, 0.0]
+
+[resnet]
+conv_channels = 32
+num_blocks = 2
+
+[cql]
+min_q_weight = 5.0
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [0.9, 0.999]
+weight_decay = 0.1
+max_grad_norm = 0.0
+
+[optim.scheduler]
+peak = 1e-4
+final = 1e-5
+warm_up_steps = 100
+max_steps = 4000
+
+[baseline.train]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../.cache/models/mortal3p.pth'
+
+[baseline.test]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../.cache/models/mortal3p.pth'
+
+[online_training]
+phase_start_step = 0
+expert_ratio = 0.0
+brain_freeze_updates = 0
+opponent_selection = 'weighted' # weighted (stochastic) | quota (deterministic)
+
+[online]
+history_window = 50
+enable_compile = false
+
+[online.remote]
+host = '127.0.0.1'
+port = 5000
+
+[online.server]
+buffer_dir = 'training/online_buffer'
+drain_dir = 'training/online_drain'
+sample_reuse_rate = 0
+sample_reuse_threshold = 0
+capacity = 1600
+force_sequential = false
+
+[1v2]
+seed_key = -1
+games_per_iter = 9999
+iters = 1
+log_dir = 'training/1v2'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'mortal'
+state_file = 'training/mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../.cache/models/mortal3p.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[grp]
+state_file = 'training/grp.pth'
+
+[grp.network]
+hidden_size = 64
+num_layers = 2
+
+[grp.control]
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+tensorboard_dir = 'training/grp_tensorboard'
+best_state_file = 'training/grp_best.pth'
+metrics_file = 'training/grp_metrics.json'
+early_stopping_patience = 0 # 0 = disabled
+early_stopping_min_delta = 0.0
+selection_metric = 'expected_pt_mse' # nll | brier | expected_pt_mse
+batch_size = 4096
+save_every = 20
+val_steps = 4
+
+[grp.dataset]
+train_globs = ['../koromo/mjson/**/*.mjson']
+# TODO(review): validation is pinned to a single day inherited from the 3p
+# fork's production config; re-check that this day stays representative as the
+# corpus grows (research note R3 Caveat 6).
+val_globs = ['../koromo/mjson/2026/07/05/*.mjson']
+file_index = 'training/grp_file_index.pth'
+file_batch_size = 64
+
+[grp.optim]
+lr = 1e-5

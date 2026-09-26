@@ -1,0 +1,105 @@
+# CPU smoke test for the held-out validation-loss code path.
+# Not a training config: 6 steps on CPU, tiny batches, val every 2 steps.
+
+[control]
+version = 4
+online = false
+state_file = 'training/smoke128_state.pth'
+best_state_file = 'training/smoke128_best_state.pth'
+deployment_file = 'training/smoke128_deploy.pth'
+tensorboard_dir = 'training/smoke128_tensorboard'
+device = 'cpu'
+enable_cudnn_benchmark = false
+enable_amp = false
+enable_compile = false
+batch_size = 64
+opt_step_every = 1
+save_every = 2
+test_every = 1000000
+submit_every = 2
+max_steps = 6
+snapshot_every = 0
+snapshot_dir = 'training/smoke128_snapshots'
+random_seed = 20260831
+val_loss_every = 2
+val_max_batches = 3
+mask_check_every = 2
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[test_play]
+games = 3
+log_dir = 'training/smoke128_test_play'
+pts = [90, 0, -90]
+
+[baseline.test]
+device = 'cpu'
+enable_compile = false
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+
+[dataset]
+native_version = 5
+globs = ['../koromo/mjson/2026/08/28/**/*.mjson']
+val_globs = ['../koromo/mjson/2026/08/29/**/*.mjson']
+file_index = 'training/smoke128_file_index.pth'
+file_batch_size = 2
+reserve_ratio = 0.0
+num_workers = 0
+player_names_files = []
+num_epochs = 1
+enable_augmentation = false
+augmented_first = false
+
+[env]
+gamma = 1.0
+pts = [6.0, 3.0, 0.0]
+
+[resnet]
+conv_channels = 128
+num_blocks = 8
+
+[cql]
+min_q_weight = 5.0
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [0.9, 0.999]
+weight_decay = 0.1
+max_grad_norm = 1.0
+
+[optim.scheduler]
+peak = 1e-4
+final = 1e-5
+warm_up_steps = 2
+max_steps = 6
+
+[grp]
+state_file = '../baselines/sanma_grp_10k_last_frozen.pth'
+
+[grp.network]
+hidden_size = 64
+num_layers = 2
+
+[grp.control]
+device = 'cpu'
+tensorboard_dir = 'training/smoke128_grp_tensorboard'
+batch_size = 8
+save_every = 100
+max_steps = 100
+
+[grp.dataset]
+train_globs = ['../koromo/mjson/2026/08/28/**/*.mjson']
+val_globs = ['../koromo/mjson/2026/08/29/**/*.mjson']
+file_index = 'training/smoke128_grp_file_index.pth'
+file_batch_size = 4
+
+[grp.optim]
+lr = 1e-5

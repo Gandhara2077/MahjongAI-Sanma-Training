@@ -1,0 +1,32 @@
+# Gate 2 for the epoch-2 extension: seed-paired comparison side of the
+# 1-epoch 128x8 champion. Same key 20260904 as sanma-eval-e2-final.toml so
+# checks/stats/arena_log_paired.py can pair the two eval dirs by (seed, seat):
+# challenger here is the archived 1-epoch champion, opponent the original
+# baseline. Run after (or alongside) the gate-1 panel completes.
+
+[compat]
+libriichi3p = '../.cache/libriichi3p/libriichi3p-3.12-x86_64-pc-windows-msvc.pyd'
+max_workers = 16
+
+[1v2]
+seed_key = 20260904
+games_per_iter = 600
+iters = 5
+log_dir = 'training/sanma_1v2_e2_paired_champ_20260904'
+pts = [90, 0, -90]
+
+[1v2.challenger]
+device = 'cuda:0'
+name = 'sanma-128x8-46k'
+state_file = '../baselines/sanma_champion_128x8_46500_20260831.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v2.champion]
+device = 'cuda:0'
+name = 'mortal-baseline'
+state_file = '../baselines/sanma_baseline_mortal3p_original.pth'
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true

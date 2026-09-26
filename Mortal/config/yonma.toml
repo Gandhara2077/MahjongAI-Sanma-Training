@@ -1,0 +1,204 @@
+# Mortal training configuration — variant: yonma (4-player, 四人麻将)
+#
+# Use with: MORTAL_CFG=config/yonma.toml python mortal/train.py   (from the Mortal/ root)
+#
+# This variant uses the direct native loading path (no [compat] section and no
+# dataset.native_version on purpose: adding either switches the dataloader to
+# the sanma-only libriichi3p compat replay path).
+# All paths are relative to the Mortal/ repository root.
+# Shared baselines are expected at ../baselines/ (placed by repo setup).
+
+[control]
+version = 4
+online = false
+
+state_file = 'training/train_state.pth'
+best_state_file = 'training/best_train_state.pth'
+deployment_file = 'training/mortal.pth'
+best_deployment_file = 'training/best_mortal.pth'
+init_from = '../baselines/baseline.pth' # configured bootstrap Brain/DQN checkpoint
+tensorboard_dir = 'training/tensorboard'
+snapshot_dir = 'training/snapshots'
+
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+enable_amp = true
+enable_compile = false
+
+batch_size = 512
+opt_step_every = 1
+
+save_every = 250
+test_every = 2000
+submit_every = 250
+# max_steps = 0           # 0 = unlimited
+# snapshot_every = 0      # 0 = disabled
+# random_seed = 1729      # optional reproducibility seed
+# deterministic = false   # forces cudnn benchmark off when true
+
+# using env `TRAIN_PLAY_PROFILE`
+[train_play.default]
+games = 64
+log_dir = 'training/train_play'
+boltzmann_epsilon = 0.005
+boltzmann_temp = 0.05
+top_p = 1.0
+repeats = 1
+
+[test_play]
+games = 128
+log_dir = 'training/test_play'
+pts = [90, 45, 0, -135] # display only, never used in training
+
+[dataset]
+globs = ['../koromo4p/mjson/**/*.mjson']
+file_index = 'training/file_index.pth'
+file_batch_size = 15
+reserve_ratio = 0.0
+num_workers = 2
+player_names_files = []
+num_epochs = 1
+enable_augmentation = false
+augmented_first = false
+
+[env]
+gamma = 1
+pts = [6.0, 4.0, 2.0, 0.0]
+
+[resnet]
+conv_channels = 256
+num_blocks = 54
+
+[cql]
+min_q_weight = 5
+
+[aux]
+next_rank_weight = 0.2
+
+[freeze_bn]
+# `true` in online training
+mortal = false
+
+[optim]
+eps = 1e-8
+betas = [0.9, 0.999]
+weight_decay = 0.1
+max_grad_norm = 1.0
+
+[optim.scheduler]
+peak = 1e-4
+final = 1e-4
+warm_up_steps = 0
+max_steps = 0
+
+[baseline.train]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../baselines/baseline.pth'
+
+[baseline.test]
+device = 'cuda:0'
+enable_compile = false
+state_file = '../baselines/baseline.pth'
+
+[online_training]
+phase_start_step = 1200
+expert_ratio = 0.3
+brain_freeze_updates = 1500
+opponent_selection = 'quota' # quota (deterministic) | weighted (stochastic)
+
+[[online_training.opponents]]
+name = 'baseline'
+weight = 0.4
+device = 'cuda:0'
+enable_compile = false
+state_file = '../baselines/baseline.pth'
+
+[[online_training.opponents]]
+name = 'deployed'
+weight = 0.4
+device = 'cuda:0'
+enable_compile = false
+state_file = 'training/deployed.pth'
+
+[[online_training.opponents]]
+name = 'historical_best'
+weight = 0.2
+device = 'cuda:0'
+enable_compile = false
+state_file = 'training/online/best.pth'
+
+[online]
+history_window = 20
+enable_compile = false
+
+[online.remote]
+host = '127.0.0.1'
+port = 5011
+
+[online.server]
+buffer_dir = 'training/online_buffer'
+drain_dir = 'training/online_drain'
+sample_reuse_rate = 0
+sample_reuse_threshold = 0
+capacity = 64
+force_sequential = true
+
+[1v3]
+seed_key = -1
+games_per_iter = 1000
+iters = 1
+log_dir = 'training/1v3'
+
+[1v3.challenger]
+device = 'cuda:0'
+name = 'mortal'
+state_file = 'training/mortal.pth'
+stochastic_latent = false
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v3.champion]
+device = 'cuda:0'
+name = 'baseline'
+state_file = '../baselines/baseline.pth'
+stochastic_latent = false
+enable_compile = false
+enable_amp = true
+enable_rule_based_agari_guard = true
+
+[1v3.akochan]
+enabled = false
+dir = ''
+tactics = ''
+
+[grp]
+state_file = 'training/grp.pth'
+
+[grp.network]
+hidden_size = 64
+num_layers = 2
+
+[grp.control]
+device = 'cuda:0'
+enable_cudnn_benchmark = true
+tensorboard_dir = 'training/grp_tensorboard'
+best_state_file = 'training/grp_best.pth'
+metrics_file = 'training/grp_metrics.json'
+early_stopping_patience = 0 # 0 = disabled
+early_stopping_min_delta = 0.0
+selection_metric = 'nll' # nll | brier | expected_pt_mse
+
+batch_size = 512
+save_every = 2000
+val_steps = 400
+
+[grp.dataset]
+train_globs = ['../koromo4p/mjson/**/*.mjson']
+val_globs = ['../koromo4p/mjson/**/*.mjson']
+file_index = 'training/grp_file_index.pth'
+file_batch_size = 50
+
+[grp.optim]
+lr = 1e-5

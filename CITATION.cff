@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "MahjongAI-Sanma-Training"
+message: "If you use this software, please cite it using these metadata."
+type: software
+abstract: >-
+  A reproducible training workflow for three-player Japanese mahjong (sanma) AI, built as a
+  modified work tree on top of Mortal. It covers three-player rules and observation encoding,
+  a Tenhou game-log pipeline, GRP and offline training, online self-play phases, and
+  statistically grounded evaluation panels, driven by one variant profile.
+authors:
+  - alias: Gandhara2077
+    website: "https://github.com/Gandhara2077"
+license: AGPL-3.0-only
+repository-code: "https://github.com/Gandhara2077/MahjongAI-Sanma-Training"
+keywords:
+  - mahjong
+  - sanma
+  - three-player-mahjong
+  - reinforcement-learning
+  - imitation-learning
+  - pytorch
+  - rocm
+  - mortal

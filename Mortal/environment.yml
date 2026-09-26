@@ -1,0 +1,16 @@
+name: mortal
+channels:
+  - conda-forge
+dependencies:
+  # The PowerShell entrypoints require CPython 3.12 and select py312 native
+  # extensions/reference binaries.
+  - python=3.12
+  - pip
+  - pip:
+    - numpy
+    - tqdm
+    - toml
+    - tensorboard
+# PyTorch is intentionally installed separately. On Windows with an AMD GPU,
+# choose the wheel from AMD's ROCm/Radeon documentation for the exact Python,
+# GPU and OS combination; do not install a CUDA or CPU-default wheel here.

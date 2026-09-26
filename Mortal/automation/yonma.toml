@@ -1,0 +1,128 @@
+# Mortal automation pipeline configuration — variant: yonma (4-player, 四人麻将)
+#
+# Use with: ./run_auto_train.ps1 -Variant yonma [--dry-run] [--stages ...] [--force]
+# (run_auto_train.ps1 activates native/yonma/libriichi-py*.pyd as
+# mortal/libriichi.pyd first; the pipeline dispatches on libriichi NUM_PLAYERS.)
+#
+# Schema is the union of both variants; yonma-only sections are marked below.
+# All relative paths resolve against this file's directory (Mortal/automation/).
+
+[paths]
+# Tenhou yonma mjson corpus: NOT migrated into this repository.
+# Download with: koromo/download_tenhou.py --variant yonma --start-date YYYYMMDD --end-date YYYYMMDD
+# Then update logs_root to point to your mjson output directory.
+logs_root = '../../koromo4p/mjson'
+mortal_root = '..'
+output_root = '../training/automation'
+base_config = '../config/yonma.toml'
+# Seed models: Use baseline as initial seed, or point to your own checkpoint.
+# New training cycles write fresh checkpoints under output_root.
+seed_model = '../../baselines/baseline.pth'
+reference_model = '../../baselines/baseline.pth'
+grp_seed_model = '../training/grp.pth'
+
+[pipeline]
+minimum_logs = 100
+split_seed = 'mortal-automation-grp-v1'
+estimated_samples_per_log = 660
+
+# yonma-only: GPU idle gate. The pipeline never preempts other training.
+[resources]
+wait_for_gpu = true
+gpu_index = 0
+max_memory_used_mb = 2000
+max_utilization = 20
+poll_seconds = 30
+timeout_hours = 72
+
+# yonma-only: one-shot bootstrap challenge of a candidate against the initial
+# training parent (skipped once the parent has been replaced).
+[parent_evaluation]
+enabled = false  # Disabled by default; enable and set candidate_model if needed
+bootstrap_only = true
+candidate_model = '../training/automation/models/candidate.pth'  # Set to your candidate model path
+block_games = 2000
+max_games = 10000
+require_positive_pt = true
+timeout_hours = 8
+
+[grp]
+enabled = true
+validation_ratio = 0.1
+min_new_logs = 20000
+min_new_ratio = 1.0
+updates_per_new_log = 1.0
+min_updates = 500
+max_updates = 3000
+save_every = 500
+val_steps = 20
+file_batch_size = 25
+lr = 1e-4
+timeout_hours = 6
+
+# yonma-only: GRP promotion gate = full-validation + downstream A/B
+# (the sanma config uses [grp.quality_gate] instead).
+[grp.validation]
+bootstrap_samples = 10000
+require_significant = true
+min_nll_reduction = 0.0
+min_brier_reduction = 0.0
+timeout_hours = 1
+
+# yonma-only
+[grp.downstream]
+enabled = true
+training_updates = 1000
+training_seeds = [1729, 7919]
+games = 1000
+require_significant = true
+require_positive_pt = true
+require_each_seed_non_regressing = true
+training_timeout_hours = 12
+evaluation_timeout_hours = 6
+
+[offline]
+enabled = true
+updates = 8000
+save_every = 100
+snapshot_every = 500
+peak_lr = 3e-7
+final_lr = 1e-7
+warm_up_steps = 500
+random_seed = 20260718
+deterministic = true
+selection_games = 512
+selection_max_candidates = 8
+file_batch_size = 5
+num_workers = 0
+num_epochs = 100
+timeout_hours = 12
+
+[online]
+enabled = true
+updates = 1000
+save_every = 100
+snapshot_every = 250
+brain_freeze_updates = 1000
+expert_ratio = 0.5
+peak_lr = 2e-7
+host = '127.0.0.1'
+port = 5020
+games_per_session = 32
+max_opponents = 3
+clients = 1
+repeats = 1
+file_batch_size = 5
+num_workers = 0
+timeout_hours = 12
+
+[evaluation]
+enabled = true
+screen_games = 512
+finalists = 2
+validation_games = 2000
+validation_block_games = 2000
+validation_max_games = 10000
+require_significant = true
+require_positive_pt = true
+timeout_hours = 6
